@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{margin:0;background:#0a0a0a;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:system-ui;text-align:center}
+.box{padding:20px;width:100%}
+#bit{font-size:42px;font-weight:900;line-height:1.1;word-wrap:break-word}
+#desc{font-size:14px;color:#888;margin-top:12px;font-weight:500}
+#detail{font-size:10px;color:#444;margin-top:20px;font-family:monospace;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="box">
+<div id="bit">...</div>
+<div id="desc">mendeteksi...</div>
+<div id="detail"></div>
+</div>
+
+<script>
+async function detectFinal(){
+  const ua = navigator.userAgent;
+  let browserBit = "UNKNOWN";
+  let deviceBit = "UNKNOWN";
+  let method = "";
+
+  try{
+    if(navigator.userAgentData && navigator.userAgentData.getHighEntropyValues){
+      const h = await navigator.userAgentData.getHighEntropyValues(['bitness','architecture']);
+      if(h.bitness){
+        browserBit = h.bitness + " BIT";
+        deviceBit = h.bitness + " BIT";
+        method = "UserAgentData API - 100% akurat";
+      }
+    }
+  }catch(e){}
+
+  if(browserBit === "UNKNOWN"){
+    try{
+      const mem = new WebAssembly.Memory({initial: 16384, maximum: 32767});
+      browserBit = "64 BIT";
+      deviceBit = "64 BIT";
+      method = "Tes Memory WASM 2GB - Lolos = 64bit";
+    }catch(e){
+      browserBit = "32 BIT";
+      deviceBit = "32 BIT (Browser 32-bit)";
+      method = "Tes Memory WASM 2GB - Gagal = 32bit";
+    }
+  }
+
+  const low = ua.toLowerCase();
+  if(low.includes("arm64") || low.includes("aarch64") || low.includes("x86_64")){
+    deviceBit = "64 BIT";
+  }
+
+  document.getElementById("bit").innerText = deviceBit;
+  document.getElementById("desc").innerText = method;
+  document.getElementById("detail").innerText = ua + "\n\nBrowser: " + browserBit + " | Device: " + deviceBit + "\nPlatform: " + navigator.platform;
+}
+detectFinal();
+</script>
+</body>
+  </html>
